@@ -13,6 +13,7 @@ export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: `${apiUrl.replace(/\/+$/, "")}/`,
+    timeout: 15000,
   }),
   endpoints: () => ({}),
 });
