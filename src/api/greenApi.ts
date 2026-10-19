@@ -4,7 +4,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export interface InstanceState {
   stateInstance: string;
 }
-const apiUrl = import.meta.env.VITE_GREEN_API_URL?.trim();
+const apiUrl = "https://api.green-api.com";
+// const apiUrl = import.meta.env.VITE_GREEN_API_URL?.trim();
 
 if (!apiUrl) {
   throw new Error("VITE_GREEN_API_URL is not configured");
