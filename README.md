@@ -1,75 +1,50 @@
-# React + TypeScript + Vite
+# MAX Chat на GREEN-API
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Текстовый клиент MAX на React, TypeScript и Vite. Для работы нужны авторизованный инстанс GREEN-API для MAX и параметры доступа из личного кабинета.
 
-Currently, two official plugins are available:
+## Настройка GREEN-API
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Установите мобильное приложение MAX и войдите в аккаунт, который будет подключён к GREEN-API.
+2. В [личном кабинете GREEN-API](https://console.green-api.com/) создайте инстанс и авторизуйте его, отсканировав QR-код через MAX.
+3. В кабинете откройте параметры инстанса. Для запросов HTTP API понадобятся `apiUrl` — ссылка на хост API, `idInstance` — уникальный номер инстанса и `apiTokenInstance` — ключ доступа инстанса.
+4. Для получения входящих сообщений через HTTP API настройте получение уведомлений: оставьте `webhookUrl` пустым и включите `incomingWebhook`.
 
-## React Compiler
+Подробности: [Перед началом работы с MAX](https://green-api.com/v3/docs/before-start/) и [Получение уведомлений через HTTP API](https://green-api.com/v3/docs/api/receiving/technology-http-api/).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Установка и запуск
 
-## Expanding the ESLint configuration
+1. Клонируйте репозиторий и перейдите в его каталог:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+   ```sh
+   git clone <URL репозитория>
+   cd green-api
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. Установите зависимости:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+   ```sh
+   npm install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+3. В корне проекта, рядом с `package.json`, создайте файл `.env.local`. Добавьте в него `VITE_GREEN_API_URL` и укажите значение параметра `apiUrl` из личного кабинета GREEN-API:
 
-```
+   ```dotenv
+   VITE_GREEN_API_URL=<apiUrl из личного кабинета GREEN-API>
+   ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+   Замените текст в угловых скобках реальным адресом хоста API из параметров инстанса.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+4. Запустите приложение:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+   ```sh
+   npm run dev
+   ```
 
+5. Откройте адрес, который Vite покажет в терминале. На экране входа укажите `idInstance` и `apiTokenInstance` из параметров того же инстанса.
+
+## Проверки
+
+```sh
+npm run build
+npm run lint
 ```

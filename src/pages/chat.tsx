@@ -34,6 +34,11 @@ const Chat = () => {
   const [showPhoneSearch, setShowPhoneSearch] = useState(false);
   const [draft, setDraft] = useState("");
   const messageListRef = useRef<HTMLOListElement>(null);
+  const phoneSearchTriggerRef = useRef<HTMLButtonElement>(null);
+  const phoneSearchModalRef = useRef<HTMLElement>(null);
+  const phoneSearchInputRef = useRef<HTMLInputElement>(null);
+  const chatBackButtonRef = useRef<HTMLButtonElement>(null);
+  const shouldRestorePhoneSearchFocusRef = useRef(false);
   const normalizedFilter = filterText.trim().toLocaleLowerCase();
   const visibleConversations = conversations.filter((conversation) =>
     `${conversation.displayName ?? ""} ${conversation.phoneNumber}`
@@ -51,15 +56,56 @@ const Chat = () => {
   }, [messages]);
 
   useEffect(() => {
-    if (!showPhoneSearch) return;
+    if (showPhoneSearch) {
+      shouldRestorePhoneSearchFocusRef.current = true;
+      phoneSearchInputRef.current?.focus();
+    } else if (shouldRestorePhoneSearchFocusRef.current) {
+      shouldRestorePhoneSearchFocusRef.current = false;
+      const trigger = phoneSearchTriggerRef.current;
+      if (trigger?.getClientRects().length) {
+        trigger.focus();
+      } else {
+        chatBackButtonRef.current?.focus();
+      }
+    }
+  }, [activeChat, showPhoneSearch]);
 
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setShowPhoneSearch(false);
+  function handlePhoneDialogKeyDown(event: React.KeyboardEvent<HTMLElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setShowPhoneSearch(false);
+      return;
+    }
+    if (event.key !== "Tab") return;
+
+    const modal = phoneSearchModalRef.current;
+    if (!modal) return;
+    const focusable = modal.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+    );
+    if (!focusable.length) {
+      event.preventDefault();
+      modal.focus();
+      return;
     }
 
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [showPhoneSearch]);
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const focusIsOutside = !modal.contains(document.activeElement);
+    if (
+      event.shiftKey &&
+      (document.activeElement === first || focusIsOutside)
+    ) {
+      event.preventDefault();
+      last.focus();
+    } else if (
+      !event.shiftKey &&
+      (document.activeElement === last || focusIsOutside)
+    ) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
 
   async function handleSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -116,6 +162,7 @@ const Chat = () => {
             <div className="chat-new-wrap">
               <button
                 className="chat-new-button"
+                ref={phoneSearchTriggerRef}
                 type="button"
                 aria-label="Создать чат"
                 aria-expanded={isNewMenuOpen}
@@ -200,6 +247,7 @@ const Chat = () => {
               <header className="chat-thread-header">
                 <button
                   className="chat-back-button"
+                  ref={chatBackButtonRef}
                   type="button"
                   aria-label="К списку чатов"
                   onClick={showConversationList}
@@ -304,7 +352,7 @@ const Chat = () => {
       {showPhoneSearch && (
         <div
           className="chat-modal-backdrop"
-          onMouseDown={(event) => {
+          onClick={(event) => {
             if (event.target === event.currentTarget) {
               setShowPhoneSearch(false);
             }
@@ -312,9 +360,11 @@ const Chat = () => {
         >
           <section
             className="chat-phone-modal"
+            ref={phoneSearchModalRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="phone-modal-title"
+            onKeyDown={handlePhoneDialogKeyDown}
           >
             <header className="chat-phone-modal-header">
               <h2 id="phone-modal-title">Найти по номеру</h2>
@@ -331,10 +381,10 @@ const Chat = () => {
               <label htmlFor="recipient-phone">Номер телефона</label>
               <input
                 id="recipient-phone"
+                ref={phoneSearchInputRef}
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                autoFocus
                 placeholder="+7 999 123-45-67"
                 value={phoneNumber}
                 onChange={(event) => setPhoneNumber(event.target.value)}

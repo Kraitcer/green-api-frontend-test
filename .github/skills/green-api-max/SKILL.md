@@ -35,5 +35,5 @@ Check the official docs when an endpoint, field, limit, or error behavior is unc
 - Run at most one polling loop per configured instance. Avoid overlapping `ReceiveNotification` calls and stop polling when credentials change or the owning UI unmounts.
 - Validate notification shape before adding a message to the chat. Use `chatId` to associate incoming messages with the conversation and preserve message IDs when available.
 - Acknowledge only after the notification has been accepted into application state. Handle empty timeout responses as normal; surface actual request failures instead of silently discarding them.
-- Credentials are entered at runtime in this frontend assignment. Do not hard-code or log them, and do not persist them in local storage unless explicitly requested. A browser-only app cannot hide credentials from its user or browser tooling.
+- Credentials are entered by the user in this frontend assignment. Never hard-code or log them. A browser-only app cannot hide credentials from its user or browser tooling.
 - Keep the UI limited to text messaging. Do not add media, groups, or unrelated API methods unless the user changes the assignment scope.
