@@ -1,11 +1,16 @@
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import type { ChangeEvent, InvalidEvent } from "react";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 import { useAuth } from "../hooks/useAuth";
+import type { RootState } from "../store/store";
 import "./login.css";
 
 const Login = () => {
   const navigate = useNavigate();
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.credentials !== null,
+  );
   const { login, isLoading, error } = useAuth();
   const [credentials, setCredentials] = useState({
     idInstance: "",
@@ -36,6 +41,10 @@ const Login = () => {
   );
   const busy = isPending || isLoading;
   const visibleError = showError ? (actionError ?? error) : null;
+
+  useEffect(() => {
+    if (isAuthenticated) void navigate("/chat", { replace: true });
+  }, [isAuthenticated, navigate]);
 
   function handleInvalid(event: InvalidEvent<HTMLInputElement>) {
     const input = event.currentTarget;
