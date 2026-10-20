@@ -13,7 +13,7 @@ import {
   useSendMessageMutation,
 } from "../store/chat";
 import type { ChatMessage } from "../store/chat";
-import type { AppDispatch, RootState } from "../store/store";
+import { persistor, type AppDispatch, type RootState } from "../store/store";
 
 type ApiError = { status?: string | number; data?: unknown };
 
@@ -226,9 +226,11 @@ export function useChat() {
     }
   }
 
-  function signOut() {
+  async function signOut() {
     dispatch(logout());
     dispatch(clearChat());
+    await persistor.flush();
+    await persistor.purge();
   }
 
   function selectConversation(chatId: string) {

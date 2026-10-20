@@ -96,8 +96,8 @@ const Chat = () => {
           <button
             className="chat-signout"
             type="button"
-            onClick={() => {
-              signOut();
+            onClick={async () => {
+              await signOut();
               void navigate("/", { replace: true });
             }}
           >
