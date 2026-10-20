@@ -50,6 +50,17 @@ const Chat = () => {
     if (list) list.scrollTop = list.scrollHeight;
   }, [messages]);
 
+  useEffect(() => {
+    if (!showPhoneSearch) return;
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setShowPhoneSearch(false);
+    }
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [showPhoneSearch]);
+
   async function handleSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (await searchByPhone(phoneNumber)) {
@@ -117,6 +128,7 @@ const Chat = () => {
                   <button
                     type="button"
                     onClick={() => {
+                      setPhoneNumber("");
                       setShowPhoneSearch(true);
                       setIsNewMenuOpen(false);
                     }}
@@ -129,50 +141,16 @@ const Chat = () => {
             </div>
           </div>
 
-          {showPhoneSearch ? (
-            <form className="chat-search" onSubmit={handleSearch}>
-              <label htmlFor="recipient-phone">Новый чат по номеру</label>
-              <div className="chat-search-control">
-                <input
-                  id="recipient-phone"
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="+7 999 123-45-67"
-                  value={phoneNumber}
-                  onChange={(event) => setPhoneNumber(event.target.value)}
-                  disabled={isSearching}
-                  aria-describedby={error ? "chat-error" : undefined}
-                />
-                <button
-                  type="submit"
-                  disabled={isSearching}
-                  aria-label="Найти пользователя"
-                >
-                  {isSearching ? "…" : "→"}
-                </button>
-                <button
-                  type="button"
-                  className="chat-search-close"
-                  aria-label="Закрыть поиск"
-                  onClick={() => setShowPhoneSearch(false)}
-                >
-                  ×
-                </button>
-              </div>
-            </form>
-          ) : (
-            <label className="chat-list-search">
-              <span aria-hidden="true">⌕</span>
-              <input
-                type="search"
-                placeholder="Найти"
-                aria-label="Фильтр чатов"
-                value={filterText}
-                onChange={(event) => setFilterText(event.target.value)}
-              />
-            </label>
-          )}
+          <label className="chat-list-search">
+            <span aria-hidden="true">⌕</span>
+            <input
+              type="search"
+              placeholder="Найти"
+              aria-label="Фильтр чатов"
+              value={filterText}
+              onChange={(event) => setFilterText(event.target.value)}
+            />
+          </label>
 
           <div className="chat-conversation-label">ВСЕ СООБЩЕНИЯ</div>
           <div className="chat-conversation-list">
@@ -316,13 +294,73 @@ const Chat = () => {
               </p>
             </div>
           )}
-          {(error || pollingError) && (
+          {!showPhoneSearch && (error || pollingError) && (
             <p className="chat-error" id="chat-error" role="alert">
               {error ?? pollingError}
             </p>
           )}
         </section>
       </section>
+      {showPhoneSearch && (
+        <div
+          className="chat-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setShowPhoneSearch(false);
+            }
+          }}
+        >
+          <section
+            className="chat-phone-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="phone-modal-title"
+          >
+            <header className="chat-phone-modal-header">
+              <h2 id="phone-modal-title">Найти по номеру</h2>
+              <button
+                className="chat-phone-modal-close"
+                type="button"
+                aria-label="Закрыть окно"
+                onClick={() => setShowPhoneSearch(false)}
+              >
+                ×
+              </button>
+            </header>
+            <form className="chat-phone-form" onSubmit={handleSearch}>
+              <label htmlFor="recipient-phone">Номер телефона</label>
+              <input
+                id="recipient-phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                autoFocus
+                placeholder="+7 999 123-45-67"
+                value={phoneNumber}
+                onChange={(event) => setPhoneNumber(event.target.value)}
+                disabled={isSearching}
+                aria-describedby={error ? "phone-search-error" : undefined}
+              />
+              {error && (
+                <p
+                  className="chat-phone-error"
+                  id="phone-search-error"
+                  role="alert"
+                >
+                  {error}
+                </p>
+              )}
+              <button
+                className="chat-phone-submit"
+                type="submit"
+                disabled={isSearching || !phoneNumber.trim()}
+              >
+                {isSearching ? "Ищем в MAX..." : "Найти в MAX"}
+              </button>
+            </form>
+          </section>
+        </div>
+      )}
       <footer className="chat-footer">
         <span>СООБЩЕНИЯ ПЕРЕДАЮТСЯ ЧЕРЕЗ GREEN-API</span>
         <span>MAX · 2026</span>
