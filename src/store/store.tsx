@@ -9,20 +9,9 @@ import {
   persistReducer,
   persistStore,
 } from "redux-persist";
+import storage from "redux-persist/es/storage";
 import authReducer, { authApi } from "./auth";
 import chatReducer from "./chat";
-
-const storage = {
-  async getItem(key: string) {
-    return window.localStorage.getItem(key);
-  },
-  async setItem(key: string, value: string) {
-    window.localStorage.setItem(key, value);
-  },
-  async removeItem(key: string) {
-    window.localStorage.removeItem(key);
-  },
-};
 
 const rootReducer = combineReducers({
   auth: authReducer,
