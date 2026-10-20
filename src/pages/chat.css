@@ -906,6 +906,36 @@
   overflow-y: auto;
 }
 
+.chat-conversation-list,
+.chat-messages {
+  scrollbar-color: rgba(45, 81, 135, 0.34) transparent;
+  scrollbar-width: thin;
+}
+
+.chat-conversation-list::-webkit-scrollbar,
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-conversation-list::-webkit-scrollbar-track,
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-conversation-list::-webkit-scrollbar-thumb,
+.chat-messages::-webkit-scrollbar-thumb {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: rgba(45, 81, 135, 0.34);
+  background-clip: padding-box;
+}
+
+.chat-conversation-list::-webkit-scrollbar-thumb:hover,
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(45, 81, 135, 0.55);
+  background-clip: padding-box;
+}
+
 .chat-contact {
   min-height: 72px;
   gap: 12px;
